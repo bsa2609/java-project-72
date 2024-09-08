@@ -26,6 +26,7 @@ dependencies {
     implementation("io.javalin:javalin:6.2.0")
     implementation("org.slf4j:slf4j-simple:2.0.13")
     implementation("io.javalin:javalin-rendering:6.1.6")
+
     implementation("gg.jte:jte:3.1.12")
 
     implementation("com.h2database:h2:2.2.224")

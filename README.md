@@ -6,7 +6,7 @@
 [![Actions Status](https://github.com/bsa2609/java-project-72/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bsa2609/java-project-72/actions)
 
 ### Description:
-Check websites for SEO suitability for free.
+Check websites for SEO suitability for free:
 
 https://java-project-72-482a.onrender.com
 
@@ -14,6 +14,12 @@ https://java-project-72-482a.onrender.com
 
 ```bash
 make build
+```
+
+## Run
+
+```bash
+make run
 ```
 
 ## Run checkstyle
