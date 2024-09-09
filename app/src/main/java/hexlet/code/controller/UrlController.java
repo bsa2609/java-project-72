@@ -8,7 +8,9 @@ import hexlet.code.util.FlashType;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -83,15 +85,7 @@ public class UrlController {
             ctx.status(200);
             UrlController.index(ctx);
 
-        } catch (SQLException e) {
-            ctx.sessionAttribute("flash",
-                    String.format("Ошибка базы данных: %s", e.getMessage()));
-            ctx.sessionAttribute("flashType", FlashType.DANGER);
-            ctx.status(400);
-
-            AppController.index(ctx);
-
-        } catch (Exception e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             ctx.sessionAttribute("flash",
                     String.format("Некорректный URL: %s", urlString));
             ctx.sessionAttribute("flashType", FlashType.DANGER);
