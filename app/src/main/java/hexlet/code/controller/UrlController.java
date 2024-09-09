@@ -1,18 +1,14 @@
 package hexlet.code.controller;
 
-import hexlet.code.dto.main.MainPage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.FlashType;
-import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
-//import java.net.MalformedURLException;
 import java.net.URI;
-//import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -103,5 +99,5 @@ public class UrlController {
 
             AppController.index(ctx);
         }
-     }
+    }
 }
