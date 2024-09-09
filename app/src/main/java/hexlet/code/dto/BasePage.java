@@ -1,12 +1,16 @@
 package hexlet.code.dto;
 
+import hexlet.code.util.FlashType;
+
+import java.util.Objects;
+
 public class BasePage {
     private String flash;
-    private String flashType;
+    private FlashType flashType;
     private String title;
 
     public BasePage() {
-        flashType = "info";
+        flashType = FlashType.INFO;
     }
 
     public String getFlash() {
@@ -25,16 +29,11 @@ public class BasePage {
         this.title = title;
     }
 
-    public String getFlashType() {
+    public FlashType getFlashType() {
         return flashType;
     }
 
-    public void setFlashType(String flashType) {
-        if (flashType == null || flashType.isBlank()) {
-            this.flashType = "info";
-
-        } else {
-            this.flashType = flashType;
-        }
+    public void setFlashType(FlashType flashType) {
+        this.flashType = Objects.requireNonNullElse(flashType, FlashType.INFO);
     }
 }

@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.controller.AppController;
 import hexlet.code.controller.UrlController;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.DatabaseType;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 
@@ -16,15 +17,13 @@ import java.util.stream.Collectors;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
-//import gg.jte.CodeResolver;
-//import gg.jte.resolve.DirectoryCodeResolver;
 import gg.jte.resolve.ResourceCodeResolver;
 import io.javalin.rendering.template.JavalinJte;
 
-//import static io.javalin.rendering.template.TemplateUtil.model;
-
-
 public class App {
+    private static final String H2_DATABASE_URL = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
+    private static DatabaseType typeOfDatabaseUsed;
+
     private static int getPort() {
         return Integer.valueOf(
                 System.getenv().getOrDefault(
@@ -34,11 +33,46 @@ public class App {
         );
     }
 
-    public static String getDataBaseUrl() {
-        return System.getenv().getOrDefault(
-                "JDBC_DATABASE_URL",
-                "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;"
-        );
+    public static String getDataBaseUrl(DatabaseType databaseType) throws Exception {
+        String dataBaseUrl = "";
+
+        switch (databaseType) {
+            case H2:
+                dataBaseUrl = H2_DATABASE_URL;
+                typeOfDatabaseUsed = DatabaseType.H2;
+                break;
+
+            case PSQL:
+                String dataBaseUrlFromEnvForPSQL = System.getenv("JDBC_DATABASE_URL");
+
+                if (dataBaseUrlFromEnvForPSQL == null) {
+                    throw new Exception("The value of the JDBC_DATABASE_URL environment variable is not set");
+                } else {
+                    dataBaseUrl = dataBaseUrlFromEnvForPSQL;
+                }
+
+                typeOfDatabaseUsed = DatabaseType.PSQL;
+                break;
+
+            case CHOICE_OF_THE_SYSTEM:
+                String dataBaseUrlFromEnvForAny = System.getenv("JDBC_DATABASE_URL");
+
+                if (dataBaseUrlFromEnvForAny == null) {
+                    dataBaseUrl = H2_DATABASE_URL;
+                    typeOfDatabaseUsed = DatabaseType.H2;
+
+                } else {
+                    dataBaseUrl = dataBaseUrlFromEnvForAny;
+                    typeOfDatabaseUsed = DatabaseType.PSQL;
+                }
+
+                break;
+
+            default:
+                throw new Exception("The database URL for the \"" + databaseType + "\" database type is not defined");
+        }
+
+        return dataBaseUrl;
     }
 
     private static String readResourceFile(String fileName) throws IOException {
@@ -57,13 +91,17 @@ public class App {
     }
 
     public static Javalin getApp() throws Exception {
+        return getApp(DatabaseType.CHOICE_OF_THE_SYSTEM);
+    }
+
+    public static Javalin getApp(DatabaseType databaseType) throws Exception {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getDataBaseUrl());
+        hikariConfig.setJdbcUrl(getDataBaseUrl(databaseType));
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("schema.sql");
 
-        if (System.getenv("JDBC_DATABASE_URL") != null) {
+        if (typeOfDatabaseUsed == DatabaseType.PSQL) {
             sql = sql.replaceAll("AUTO_INCREMENT", "GENERATED ALWAYS AS IDENTITY");
         }
 

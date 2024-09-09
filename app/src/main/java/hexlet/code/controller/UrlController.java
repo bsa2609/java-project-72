@@ -1,14 +1,18 @@
 package hexlet.code.controller;
 
+import hexlet.code.dto.main.MainPage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
+import hexlet.code.util.FlashType;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
+//import java.net.MalformedURLException;
 import java.net.URI;
+//import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -72,27 +76,32 @@ public class UrlController {
                 UrlRepository.save(url);
 
                 ctx.sessionAttribute("flash", "Страница успешно добавлена");
-                ctx.sessionAttribute("flashType", "success");
+                ctx.sessionAttribute("flashType", FlashType.SUCCESS);
 
             } else {
                 ctx.sessionAttribute("flash",
                         String.format("Страница уже существует. ID: %s", urlAsOptional.get().getId()));
-                ctx.sessionAttribute("flashType", "warning");
+                ctx.sessionAttribute("flashType", FlashType.WARNING);
             }
 
-            ctx.redirect(NamedRoutes.urlsPath());
+            ctx.status(200);
+            UrlController.index(ctx);
 
         } catch (SQLException e) {
-            ctx.sessionAttribute("flash", "Ошибка SQL: " + e.getMessage());
-            ctx.sessionAttribute("flashType", "danger");
+            ctx.sessionAttribute("flash",
+                    String.format("Ошибка базы данных: %s", e.getMessage()));
+            ctx.sessionAttribute("flashType", FlashType.DANGER);
+            ctx.status(400);
 
-            ctx.redirect(NamedRoutes.urlsPath());
+            AppController.index(ctx);
 
         } catch (Exception e) {
-            ctx.sessionAttribute("flash", "Некорректный URL: " + urlString);
-            ctx.sessionAttribute("flashType", "danger");
+            ctx.sessionAttribute("flash",
+                    String.format("Некорректный URL: %s", urlString));
+            ctx.sessionAttribute("flashType", FlashType.DANGER);
+            ctx.status(400);
 
-            ctx.redirect(NamedRoutes.rootPath());
+            AppController.index(ctx);
         }
-    }
+     }
 }
