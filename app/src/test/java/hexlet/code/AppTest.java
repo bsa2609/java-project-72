@@ -5,6 +5,8 @@ import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import hexlet.code.util.Utils;
 import io.javalin.Javalin;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,32 +18,44 @@ import kong.unirest.core.Unirest;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppTest {
     public static Javalin app;
     public static String localUrl;
+    public static MockWebServer mockWebServer;
 
     @BeforeAll
     public static void setUp() throws Exception {
-        Utils.useH2DatabaseOnStart = true;
-        Utils.enableDevLogging = false;
+        App.useH2DatabaseOnStart = true;
+        App.enableDevLoggingOnStart = false;
 
         app = App.getApp();
         app.start(7070);
 
         localUrl = "http://localhost:" + app.port();
+
+        mockWebServer = new MockWebServer();
+        mockWebServer.enqueue(new MockResponse().setBody(
+                """
+                <title>Тестовый сайт</title>
+                <meta name ="description" content="Описание тестового сайта"/>
+                <h1> <a></a> h1 тестового сайта</h1>
+                """));
+        mockWebServer.start();
     }
 
     @AfterAll
-    public static void stopApp() {
+    public static void stopApp() throws Exception {
         app.stop();
+        mockWebServer.shutdown();
     }
 
     @BeforeEach
     void createTable() throws SQLException, IOException {
-        Utils.createDBTables();
+        Utils.createDatabaseTables();
     }
 
     @Test
@@ -164,5 +178,81 @@ public class AppTest {
 
         assertThat(response.getStatus()).isEqualTo(404);
         assertThat(response.getBody()).contains("Url id = asaslkj not Long type, url not found");
+    }
+
+    @Test
+    @DisplayName("Test create and check URL and flash")
+    void testCreateAndCreateURL() throws Exception {
+        String urlString = mockWebServer.url("/").toString();
+
+        if (urlString.endsWith("/")) {
+            urlString = urlString.substring(0, urlString.length() - 1);
+        }
+
+        HttpResponse<String> responseCreate = Unirest
+                .post(localUrl + NamedRoutes.urlsPath())
+                .field("url", urlString)
+                .asString();
+
+        assertThat(responseCreate.getStatus()).isEqualTo(200);
+
+        String responseCreateBody = responseCreate.getBody();
+        assertThat(responseCreateBody).contains(urlString);
+        assertThat(responseCreateBody).contains("Страница успешно добавлена");
+
+        Optional<Url> urlAsOptional = UrlRepository.findByName(urlString);
+
+        assertThat(urlAsOptional.isPresent()).isTrue();
+
+        HttpResponse<String> responseCheck = Unirest
+                .post(localUrl + NamedRoutes.checkUrlPath(urlAsOptional.get().getId()))
+                .asString();
+
+        assertThat(responseCheck.getStatus()).isEqualTo(200);
+
+        String responseCheckBody = responseCheck.getBody();
+        assertThat(responseCheckBody).contains(urlString);
+        assertThat(responseCheckBody).contains("Страница успешно проверена");
+        assertThat(responseCheckBody).contains("Тестовый сайт");
+        assertThat(responseCheckBody).contains("Описание тестового сайта");
+        assertThat(responseCheckBody).contains("h1 тестового сайта");
+    }
+
+    @Test
+    @DisplayName("Test create and incorrect check URL and flash")
+    void testCreateAndIncorrectCreateURL() throws Exception {
+        String urlString = mockWebServer.url("/").toString();
+
+        if (urlString.endsWith("/")) {
+            urlString = urlString.substring(0, urlString.length() - 1);
+        }
+
+        urlString = urlString + "0";
+
+        HttpResponse<String> responseCreate = Unirest
+                .post(localUrl + NamedRoutes.urlsPath())
+                .field("url", urlString)
+                .asString();
+
+        assertThat(responseCreate.getStatus()).isEqualTo(200);
+
+        String responseCreateBody = responseCreate.getBody();
+        assertThat(responseCreateBody).contains(urlString);
+        assertThat(responseCreateBody).contains("Страница успешно добавлена");
+
+        Optional<Url> urlAsOptional = UrlRepository.findByName(urlString);
+
+        assertThat(urlAsOptional.isPresent()).isTrue();
+
+        HttpResponse<String> responseCheck = Unirest
+                .post(localUrl + NamedRoutes.checkUrlPath(urlAsOptional.get().getId()))
+                .asString();
+
+        assertThat(responseCheck.getStatus()).isEqualTo(200);
+
+        String responseCheckBody = responseCheck.getBody();
+        assertThat(responseCheckBody).contains(urlString);
+        assertThat(responseCheckBody).contains(
+                String.format("Некорректный адрес: %s", urlString));
     }
 }

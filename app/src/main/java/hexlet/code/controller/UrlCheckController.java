@@ -35,7 +35,6 @@ public class UrlCheckController {
                     .asString();
 
             statusCode = response.getStatus();
-
             body = response.getBody();
 
         } catch (Exception e) {
@@ -49,15 +48,17 @@ public class UrlCheckController {
         }
 
         String title = Utils.matchRegExp(body,
-                "(<title[\\s\\S]*?>)(?<title>[\\s\\S]*?)(<\\/title>)",
+                "(<title.*?>)(?<title>.*?)(<.*?\\/title>)",
                 "title");
 
         String description = Utils.matchRegExp(body,
-                "(<meta *name=\"description\")([\\s\\S]*?)(=\")(?<description>[\\s\\S]*?)(\"[\\s\\S]*?)?(\\/>)",
+                String.format("%s%s",
+                        "(<meta[ \\s]*name[ \\s]*=[ \\s]*\"[ \\s]*description[ \\s]*\".*?",
+                        "content[ \\s]*=[ \\s]*\")(?<description>.*?)(\".*?\\/>)"),
                 "description");
 
         String h1 = Utils.matchRegExp(body,
-                "(<h1[\\s\\S]*?)(\">)( *?(<a[\\s\\S]*?)(\\/a>))?(?<h1>[\\s\\S]*?)(<\\/h1>)",
+                "(<h1.*?)(?<h1>[^>]*?)(<[^>]*?\\/h1>)",
                 "h1");
 
         UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);

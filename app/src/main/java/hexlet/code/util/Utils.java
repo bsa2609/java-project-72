@@ -16,13 +16,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Utils {
-    private static final String H2_DATABASE_URL = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
-    public static boolean useH2DatabaseOnStart = false;
-    public static boolean usingH2DatabaseOnWork = false;
-    public static boolean enableDevLogging = true;
-
     public static String matchRegExp(String input, String regEx, String groupName) {
-        Pattern pattern = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher matcher = pattern.matcher(input);
 
         if (matcher.find()) {
@@ -37,27 +32,27 @@ public class Utils {
         return Integer.valueOf(System.getenv().getOrDefault("PORT", "7070"));
     }
 
-    public static String getDataBaseUrl() throws Exception {
-        String dataBaseUrl = "";
+    public static String getDatabaseUrl() throws Exception {
+        String databaseUrl;
 
-        if (useH2DatabaseOnStart) {
-            dataBaseUrl = H2_DATABASE_URL;
-            usingH2DatabaseOnWork = true;
+        if (App.useH2DatabaseOnStart) {
+            databaseUrl = App.H2_DATABASE_URL;
+            App.usingH2DatabaseOnWork = true;
 
         } else {
-            String dataBaseUrlFromEnvForAny = System.getenv("JDBC_DATABASE_URL");
+            String dataBaseUrlFromEnv = System.getenv("JDBC_DATABASE_URL");
 
-            if (dataBaseUrlFromEnvForAny == null) {
-                dataBaseUrl = H2_DATABASE_URL;
-                usingH2DatabaseOnWork = true;
+            if (dataBaseUrlFromEnv == null) {
+                databaseUrl = App.H2_DATABASE_URL;
+                App.usingH2DatabaseOnWork = true;
 
             } else {
-                dataBaseUrl = dataBaseUrlFromEnvForAny;
-                usingH2DatabaseOnWork = false;
+                databaseUrl = dataBaseUrlFromEnv;
+                App.usingH2DatabaseOnWork = false;
             }
         }
 
-        return dataBaseUrl;
+        return databaseUrl;
     }
 
     private static String readResourceFile(String fileName) throws IOException {
@@ -68,10 +63,10 @@ public class Utils {
         }
     }
 
-    public static void createDBTables() throws IOException, SQLException {
+    public static void createDatabaseTables() throws IOException, SQLException {
         var sql = readResourceFile("schema.sql");
 
-        if (!usingH2DatabaseOnWork) {
+        if (!App.usingH2DatabaseOnWork) {
             sql = sql.replaceAll("AUTO_INCREMENT", "GENERATED ALWAYS AS IDENTITY");
         }
 

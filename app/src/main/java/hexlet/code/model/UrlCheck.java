@@ -1,5 +1,7 @@
 package hexlet.code.model;
 
+import hexlet.code.App;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -65,7 +67,7 @@ public class UrlCheck {
     }
 
     public String getCreatedAtAsString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(App.DATE_FORMAT);
         return createdAt.format(formatter);
     }
 

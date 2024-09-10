@@ -29,14 +29,6 @@ public class UrlCheckRepository extends BaseRepository {
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
-
-            System.out.println("url_id: " + urlCheck.getUrl().getId());
-            System.out.println("statusCode: " + urlCheck.getStatusCode());
-            System.out.println("title: " + urlCheck.getTitle());
-            System.out.println("h1: " + urlCheck.getH1());
-            System.out.println("description: " + urlCheck.getDescription());
-            System.out.println("createdAt: " + urlCheck.getCreatedAt());
-
             stmt.setLong(1, urlCheck.getUrl().getId());
             stmt.setInt(2, urlCheck.getStatusCode());
             stmt.setString(3, urlCheck.getTitle());
@@ -47,14 +39,14 @@ public class UrlCheckRepository extends BaseRepository {
 
             ResultSet generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                urlCheck.setId(generatedKeys.getLong(1));
+                urlCheck.setId(generatedKeys.getLong("id"));
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }
         }
     }
 
-    public static void fillEntities(Url url) throws SQLException {
+    public static void fillEntitiesInUrl(Url url) throws SQLException {
         url.setUrlChecks(new ArrayList<>());
 
         String sql =

@@ -14,29 +14,47 @@ import java.util.List;
 import java.util.Optional;
 
 public class UrlRepository extends BaseRepository {
-    public static Optional<Url> findByName(String name) throws SQLException {
+    public static Optional<Url> findByField(String fieldName, Object fieldValue) throws SQLException {
         String sql =
                 """
                 SELECT
                     id,
+                    name,
                     createdAt
                 FROM urls
                 WHERE
-                    name = ?
-                """;
+                """ + fieldName + " = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
+
+            String fieldValueClassTypeName = fieldValue.getClass().getTypeName();
+            switch (fieldValueClassTypeName) {
+                case "java.lang.Long":
+                    stmt.setLong(1, (Long) fieldValue);
+                    break;
+
+                case "java.lang.String":
+                    stmt.setString(1, (String) fieldValue);
+                    break;
+
+                default:
+                    throw new SQLException(
+                            String.format("Unsupported find field value type: %s", fieldValueClassTypeName));
+            }
+
             ResultSet resultSet = stmt.executeQuery();
 
             if (resultSet.next()) {
+                String name = resultSet.getString("name");
                 Long id = resultSet.getLong("id");
                 LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
 
                 Url url = new Url(name);
                 url.setId(id);
                 url.setCreatedAt(createdAt);
+
+                UrlCheckRepository.fillEntitiesInUrl(url);
 
                 return Optional.of(url);
             }
@@ -45,37 +63,12 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
+    public static Optional<Url> findByName(String name) throws SQLException {
+        return findByField("name", name);
+    }
+
     public static Optional<Url> find(Long id) throws SQLException {
-        String sql =
-                """
-                SELECT
-                    name,
-                    createdAt
-                FROM urls
-                WHERE
-                    id = ?
-                """;
-
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            ResultSet resultSet = stmt.executeQuery();
-
-            if (resultSet.next()) {
-                String name = resultSet.getString("name");
-                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
-
-                Url url = new Url(name);
-                url.setId(id);
-                url.setCreatedAt(createdAt);
-
-                UrlCheckRepository.fillEntities(url);
-
-                return Optional.of(url);
-            }
-
-            return Optional.empty();
-        }
+        return findByField("id", id);
     }
 
     public static void save(Url url) throws SQLException {
@@ -87,6 +80,7 @@ public class UrlRepository extends BaseRepository {
                 )
                 VALUES(?, ?);
                 """;
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, url.getName());
@@ -95,7 +89,7 @@ public class UrlRepository extends BaseRepository {
 
             ResultSet generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                url.setId(generatedKeys.getLong(1));
+                url.setId(generatedKeys.getLong("id"));
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }

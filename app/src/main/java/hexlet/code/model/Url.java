@@ -1,5 +1,7 @@
 package hexlet.code.model;
 
+import hexlet.code.App;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class Url {
             return "";
 
         } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(App.DATE_FORMAT);
             return lastCheckAt.format(formatter);
         }
     }
@@ -71,7 +73,7 @@ public class Url {
     }
 
     public String getCreatedAtAsString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(App.DATE_FORMAT);
         return createdAt.format(formatter);
     }
 

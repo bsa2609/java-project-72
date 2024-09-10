@@ -13,16 +13,22 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 
 public class App {
+    public static final String H2_DATABASE_URL = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
+    public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
+    public static boolean useH2DatabaseOnStart = false;
+    public static boolean usingH2DatabaseOnWork = false;
+    public static boolean enableDevLoggingOnStart = true;
+
     public static Javalin getApp() throws Exception {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(Utils.getDataBaseUrl());
+        hikariConfig.setJdbcUrl(Utils.getDatabaseUrl());
 
         BaseRepository.dataSource = new HikariDataSource(hikariConfig);
 
-        Utils.createDBTables();
+        Utils.createDatabaseTables();
 
         var app = Javalin.create(config -> {
-            if (Utils.enableDevLogging) {
+            if (enableDevLoggingOnStart) {
                 config.bundledPlugins.enableDevLogging();
             }
             config.fileRenderer(new JavalinJte(Utils.createTemplateEngine()));
