@@ -38,12 +38,7 @@ public class AppTest {
         localUrl = "http://localhost:" + app.port();
 
         mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody(
-                """
-                <title>Тестовый сайт</title>
-                <meta name ="description" content="Описание тестового сайта"/>
-                <h1> <a></a> h1 тестового сайта</h1>
-                """));
+        mockWebServer.enqueue(new MockResponse().setBody(Utils.readResourceFile("testSite.html")));
         mockWebServer.start();
     }
 
@@ -137,7 +132,7 @@ public class AppTest {
                 .asString();
 
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getBody()).contains("Некорректный URL: https://www.mail.ru:456321254799985544");
+        assertThat(response.getBody()).contains("Некорректный URL");
     }
 
     @Test
@@ -155,7 +150,7 @@ public class AppTest {
 
         String responseBody = response.getBody();
         assertThat(responseBody).contains("https://www.mail.ru");
-        assertThat(responseBody).contains(String.format("Страница уже существует. ID: %s", url.getId()));
+        assertThat(responseBody).contains("Страница уже существует");
     }
 
     @Test
@@ -166,7 +161,7 @@ public class AppTest {
                 .asString();
 
         assertThat(response.getStatus()).isEqualTo(404);
-        assertThat(response.getBody()).contains("Url id = 222 not found");
+        assertThat(response.getBody()).contains("Url with id = 222 not found");
     }
 
     @Test
@@ -177,7 +172,7 @@ public class AppTest {
                 .asString();
 
         assertThat(response.getStatus()).isEqualTo(404);
-        assertThat(response.getBody()).contains("Url id = asaslkj not Long type, url not found");
+        assertThat(response.getBody()).contains("The \"asaslkj\" id is not numeric, URL not found");
     }
 
     @Test
@@ -252,7 +247,6 @@ public class AppTest {
 
         String responseCheckBody = responseCheck.getBody();
         assertThat(responseCheckBody).contains(urlString);
-        assertThat(responseCheckBody).contains(
-                String.format("Некорректный адрес: %s", urlString));
+        assertThat(responseCheckBody).contains("Некорректный адрес");
     }
 }

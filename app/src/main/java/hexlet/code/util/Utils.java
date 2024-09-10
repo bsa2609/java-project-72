@@ -1,35 +1,25 @@
 package hexlet.code.util;
 
-import gg.jte.ContentType;
-import gg.jte.TemplateEngine;
-import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.App;
 import hexlet.code.repository.BaseRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Utils {
-    public static String matchRegExp(String input, String regEx, String groupName) {
-        Pattern pattern = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(input);
-
-        if (matcher.find()) {
-            return matcher.group(groupName);
-
-        } else {
-            return "";
-        }
-    }
-
+public final class Utils {
     public static int getPort() {
-        return Integer.valueOf(System.getenv().getOrDefault("PORT", "7070"));
+        return Integer.parseInt(System.getenv().getOrDefault("PORT", "7070"));
     }
 
     public static String getDatabaseUrl() throws Exception {
@@ -55,7 +45,7 @@ public class Utils {
         return databaseUrl;
     }
 
-    private static String readResourceFile(String fileName) throws IOException {
+    public static String readResourceFile(String fileName) throws IOException {
         var inputStream = App.class.getClassLoader().getResourceAsStream(fileName);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -76,11 +66,48 @@ public class Utils {
         }
     }
 
-    public static TemplateEngine createTemplateEngine() {
-        ClassLoader classLoader = App.class.getClassLoader();
-        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
-        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+    public static String parseUrlString(String urlString) throws Exception {
+        URI uri = new URI(urlString);
+        URL urlFromUri = uri.toURL();
 
-        return templateEngine;
+        StringBuilder nameBuilder = new StringBuilder();
+        nameBuilder.append(urlFromUri.getProtocol());
+        nameBuilder.append("://");
+        nameBuilder.append(urlFromUri.getHost());
+
+        if (urlFromUri.getPort() > 0) {
+            nameBuilder.append(":");
+            nameBuilder.append(urlFromUri.getPort());
+        }
+
+        String name = nameBuilder.toString();
+
+        return name;
+    }
+
+    public static Map<String, String> parseHTML(String body) {
+        Map<String, String> tags = new HashMap<>();
+
+        Document doc = Jsoup.parse(body);
+
+        String title = doc.title().trim();
+        String h1 = "";
+        String description = "";
+
+        Element h1Element = doc.selectFirst("h1");
+        if (h1Element != null) {
+            h1 = h1Element.text().trim();
+        }
+
+        Element descriptionElement = doc.selectFirst("meta[name=description]");
+        if (descriptionElement != null) {
+            description = descriptionElement.attr("content").trim();
+        }
+
+        tags.put("title", title);
+        tags.put("h1", h1);
+        tags.put("description", description);
+
+        return tags;
     }
 }

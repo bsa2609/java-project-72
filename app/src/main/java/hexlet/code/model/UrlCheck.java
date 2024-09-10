@@ -5,7 +5,7 @@ import hexlet.code.App;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class UrlCheck {
+public final class UrlCheck {
     private Url url;
     private Long id;
     private int statusCode;

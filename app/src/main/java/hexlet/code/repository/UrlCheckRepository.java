@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class UrlCheckRepository extends BaseRepository {
+public final class UrlCheckRepository extends BaseRepository {
     public static void save(UrlCheck urlCheck) throws SQLException {
         String sql =
                 """
@@ -46,7 +46,7 @@ public class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static void fillEntitiesInUrl(Url url) throws SQLException {
+    public static void fillEntities(Url url) throws SQLException {
         url.setUrlChecks(new ArrayList<>());
 
         String sql =

@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Url {
+public final class Url {
     private Long id;
     private String name;
     private LocalDateTime createdAt;

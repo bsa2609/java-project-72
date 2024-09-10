@@ -3,13 +3,11 @@ package hexlet.code.dto.urls;
 import hexlet.code.dto.BasePage;
 import hexlet.code.model.Url;
 
-public class UrlPage extends BasePage {
+public final class UrlPage extends BasePage {
     private Url url;
 
     public UrlPage(Url url) {
-        super();
         setTitle("Анализируемая страница");
-
         this.url = url;
     }
 

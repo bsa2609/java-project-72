@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UrlRepository extends BaseRepository {
+public final class UrlRepository extends BaseRepository {
     public static Optional<Url> findByField(String fieldName, Object fieldValue) throws SQLException {
         String sql =
                 """
@@ -27,7 +27,6 @@ public class UrlRepository extends BaseRepository {
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             String fieldValueClassTypeName = fieldValue.getClass().getTypeName();
             switch (fieldValueClassTypeName) {
                 case "java.lang.Long":
@@ -54,7 +53,7 @@ public class UrlRepository extends BaseRepository {
                 url.setId(id);
                 url.setCreatedAt(createdAt);
 
-                UrlCheckRepository.fillEntitiesInUrl(url);
+                UrlCheckRepository.fillEntities(url);
 
                 return Optional.of(url);
             }

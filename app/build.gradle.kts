@@ -38,6 +38,8 @@ dependencies {
     implementation("com.konghq:unirest-java-core:4.4.4")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    implementation("org.jsoup:jsoup:1.18.1")
 }
 
 tasks.test {

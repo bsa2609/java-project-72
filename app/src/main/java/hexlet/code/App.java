@@ -2,6 +2,9 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.controller.AppController;
 import hexlet.code.controller.UrlCheckController;
 import hexlet.code.controller.UrlController;
@@ -19,6 +22,14 @@ public class App {
     public static boolean usingH2DatabaseOnWork = false;
     public static boolean enableDevLoggingOnStart = true;
 
+    public static TemplateEngine createTemplateEngine() {
+        ClassLoader classLoader = App.class.getClassLoader();
+        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
+        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+
+        return templateEngine;
+    }
+
     public static Javalin getApp() throws Exception {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(Utils.getDatabaseUrl());
@@ -31,7 +42,7 @@ public class App {
             if (enableDevLoggingOnStart) {
                 config.bundledPlugins.enableDevLogging();
             }
-            config.fileRenderer(new JavalinJte(Utils.createTemplateEngine()));
+            config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
         app.get(NamedRoutes.rootPath(), AppController::index);
