@@ -5,12 +5,11 @@ import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.FlashType;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,6 +42,9 @@ public class UrlController {
 
         UrlPage page = new UrlPage(url);
 
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
+
         ctx.render("urls/show.jte", model("page", page));
     }
 
@@ -51,6 +53,8 @@ public class UrlController {
                 .getOrDefault("")
                 .trim()
                 .toLowerCase();
+
+        String name = "";
 
         try {
             URI uri = new URI(urlString);
@@ -66,32 +70,34 @@ public class UrlController {
                 nameBuilder.append(urlFromUri.getPort());
             }
 
-            String name = nameBuilder.toString();
-            Optional<Url> urlAsOptional = UrlRepository.findByName(name);
+            name = nameBuilder.toString();
 
-            if (urlAsOptional.isEmpty()) {
-                Url url = new Url(name);
-                UrlRepository.save(url);
-
-                ctx.sessionAttribute("flash", "Страница успешно добавлена");
-                ctx.sessionAttribute("flashType", FlashType.SUCCESS);
-
-            } else {
-                ctx.sessionAttribute("flash",
-                        String.format("Страница уже существует. ID: %s", urlAsOptional.get().getId()));
-                ctx.sessionAttribute("flashType", FlashType.WARNING);
-            }
-
-            ctx.status(200);
-            UrlController.index(ctx);
-
-        } catch (URISyntaxException | MalformedURLException e) {
+        } catch (Exception e) {
             ctx.sessionAttribute("flash",
                     String.format("Некорректный URL: %s", urlString));
             ctx.sessionAttribute("flashType", FlashType.DANGER);
-            ctx.status(400);
 
-            AppController.index(ctx);
+            ctx.redirect(NamedRoutes.rootPath());
+
+            return;
         }
+
+        Optional<Url> urlAsOptional = UrlRepository.findByName(name);
+
+        if (urlAsOptional.isEmpty()) {
+            Url url = new Url(name);
+            UrlRepository.save(url);
+
+            ctx.sessionAttribute("flash",
+                    "Страница успешно добавлена");
+            ctx.sessionAttribute("flashType", FlashType.SUCCESS);
+
+        } else {
+            ctx.sessionAttribute("flash",
+                    String.format("Страница уже существует. ID: %s", urlAsOptional.get().getId()));
+            ctx.sessionAttribute("flashType", FlashType.WARNING);
+        }
+
+        ctx.redirect(NamedRoutes.urlsPath());
     }
 }

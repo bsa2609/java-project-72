@@ -28,7 +28,7 @@ content = @`
         <h2 class="mt-5">Проверки</h2>
 
         <form method="post" action="${NamedRoutes.checkUrlPath(page.getUrl().getId())}">
-            <button type="submit" class="btn btn-primary" disabled>Запустить проверку</button>
+            <button type="submit" class="btn btn-primary">Запустить проверку</button>
         </form>
 
         <table class="table table-bordered table-hover mt-3">
@@ -44,7 +44,16 @@ content = @`
             </thead>
 
             <tbody>
-
+                @for(var urlChecks : page.getUrl().getReversedUrlChecks())
+                    <tr>
+                        <td>${urlChecks.getId()}</td>
+                        <td class="col-1">${urlChecks.getStatusCode()}</td>
+                        <td>${urlChecks.getTitle()}</td>
+                        <td>${urlChecks.getH1()}</td>
+                        <td>${urlChecks.getDescription()}</td>
+                        <td class="col-2">${urlChecks.getCreatedAtAsString()}</td>
+                    </tr>
+                @endfor
             </tbody>
         </table>
     </div>

@@ -69,6 +69,8 @@ public class UrlRepository extends BaseRepository {
                 url.setId(id);
                 url.setCreatedAt(createdAt);
 
+                UrlCheckRepository.fillEntities(url);
+
                 return Optional.of(url);
             }
 
@@ -103,11 +105,30 @@ public class UrlRepository extends BaseRepository {
     public static List<Url> getEntities() throws SQLException {
         String sql =
                 """
+                WITH max_url_id AS (
                 SELECT
-                    id,
-                    name,
-                    createdAt
+                    urls.id AS id,
+                    MAX(url_checks.id) AS check_id
                 FROM urls
+                INNER JOIN url_checks
+                    ON urls.id = url_checks.url_id
+                GROUP BY
+                  urls.id
+                )
+                SELECT
+                    urls.id,
+                    urls.name,
+                    urls.createdAt,
+                    url_checks.createdAt AS check_createdAt,
+                    url_checks.statusCode AS check_statusCode
+                FROM urls
+                LEFT JOIN max_url_id
+                    ON urls.id = max_url_id.id
+                LEFT JOIN url_checks
+                    ON urls.id = url_checks.url_id
+                        AND url_checks.id = max_url_id.check_id
+                ORDER BY
+                    urls.id
                 """;
 
         try (Connection conn = dataSource.getConnection();
@@ -123,6 +144,14 @@ public class UrlRepository extends BaseRepository {
                 Url url = new Url(name);
                 url.setId(id);
                 url.setCreatedAt(createdAt);
+
+                if (resultSet.getObject("check_statusCode") != null) {
+                    url.setLastCheckCode(resultSet.getInt("check_statusCode"));
+                }
+
+                if (resultSet.getObject("check_createdAt") != null) {
+                    url.setLastCheckAt(resultSet.getTimestamp("check_createdAt").toLocalDateTime());
+                }
 
                 result.add(url);
             }

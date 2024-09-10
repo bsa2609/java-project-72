@@ -1,7 +1,19 @@
+DROP TABLE IF EXISTS url_checks;
 DROP TABLE IF EXISTS urls;
 
 CREATE TABLE urls(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(500) NOT NULL,
     createdAt TIMESTAMP NOT NULL
+);
+
+CREATE TABLE url_checks(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    url_id BIGINT NOT NULL,
+    statusCode INT NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    h1 VARCHAR(500) NOT NULL,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP NOT NULL,
+    FOREIGN KEY(url_id) REFERENCES urls(id)
 );

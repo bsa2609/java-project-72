@@ -23,8 +23,8 @@ content = @`
                     <tr>
                         <td>${url.getId()}</td>
                         <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
-                        <td></td>
-                        <td></td>
+                        <td>${url.getLastCheckAtAsString()}</td>
+                        <td>${url.getLastCheckCodeAsString()}</td>
                     </tr>
                 @endfor
             </tbody>
