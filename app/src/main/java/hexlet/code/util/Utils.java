@@ -22,7 +22,7 @@ public final class Utils {
         return Integer.parseInt(System.getenv().getOrDefault("PORT", "7070"));
     }
 
-    public static String getDatabaseUrl() throws Exception {
+    public static String getDatabaseUrl() {
         String databaseUrl;
 
         if (App.useH2DatabaseOnStart) {

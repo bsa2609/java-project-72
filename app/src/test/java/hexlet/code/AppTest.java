@@ -216,6 +216,17 @@ public class AppTest {
         Optional<UrlCheck> urlCheckAsOptional = UrlCheckRepository.find(1L);
 
         assertThat(urlCheckAsOptional.isPresent()).isTrue();
+
+        HttpResponse<String> responseGet = Unirest
+                .get(localUrl + NamedRoutes.urlsPath())
+                .asString();
+
+        assertThat(responseGet.getStatus()).isEqualTo(200);
+
+        String responseBody = responseGet.getBody();
+        assertThat(responseBody).contains(urlCheckAsOptional.get().getCreatedAtAsString());
+        assertThat(responseBody).contains(String.valueOf(urlCheckAsOptional.get().getStatusCode()));
+
     }
 
     @Test

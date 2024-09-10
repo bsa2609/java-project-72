@@ -29,13 +29,18 @@ public class App {
         return templateEngine;
     }
 
-    public static Javalin getApp() throws Exception {
+    public static Javalin getApp() {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(Utils.getDatabaseUrl());
 
         BaseRepository.dataSource = new HikariDataSource(hikariConfig);
 
-        Utils.createDatabaseTables();
+        try {
+            Utils.createDatabaseTables();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Create database table error: %s", e.getMessage()));
+        }
 
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
@@ -51,7 +56,7 @@ public class App {
         return app;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         var app = getApp();
         app.start(Utils.getPort());
     }
