@@ -1,6 +1,8 @@
 package hexlet.code;
 
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import hexlet.code.util.Utils;
@@ -211,6 +213,10 @@ public class AppTest {
         assertThat(responseCheckBody).contains("Тестовый сайт");
         assertThat(responseCheckBody).contains("Описание тестового сайта");
         assertThat(responseCheckBody).contains("h1 тестового сайта");
+
+        Optional<UrlCheck> urlCheckAsOptional = UrlCheckRepository.find(1L);
+
+        assertThat(urlCheckAsOptional.isPresent()).isTrue();
     }
 
     @Test

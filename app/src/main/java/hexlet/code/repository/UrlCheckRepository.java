@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public final class UrlCheckRepository extends BaseRepository {
     public static void save(UrlCheck urlCheck) throws SQLException {
@@ -46,9 +48,52 @@ public final class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static void fillEntities(Url url) throws SQLException {
-        url.setUrlChecks(new ArrayList<>());
+    public static Optional<UrlCheck> find(Long id) throws SQLException {
+        String sql =
+                """
+                SELECT
+                    url_id,
+                    statusCode,
+                    title,
+                    h1,
+                    description,
+                    createdAt
+                FROM url_checks
+                WHERE
+                    id = ?
+                """;
 
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
+                Long urlId = resultSet.getLong("url_id");
+                int statusCode = resultSet.getInt("statusCode");
+                String title = resultSet.getString("title");
+                String h1 = resultSet.getString("h1");
+                String description = resultSet.getString("description");
+                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
+
+                UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);
+                urlCheck.setId(id);
+                urlCheck.setCreatedAt(createdAt);
+
+                Url url = UrlRepository.find(urlId)
+                        .orElseThrow(() -> new SQLException(
+                                String.format("Url with id = %s not found", urlId)));
+
+                urlCheck.setUrl(url);
+
+                return Optional.of(urlCheck);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public static List<UrlCheck> getEntities(Url url) throws SQLException {
         String sql =
                 """
                 SELECT
@@ -69,6 +114,7 @@ public final class UrlCheckRepository extends BaseRepository {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, url.getId());
             ResultSet resultSet = stmt.executeQuery();
+            List<UrlCheck> result = new ArrayList<>();
 
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
@@ -81,9 +127,12 @@ public final class UrlCheckRepository extends BaseRepository {
                 UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);
                 urlCheck.setId(id);
                 urlCheck.setCreatedAt(createdAt);
+                urlCheck.setUrl(url);
 
-                url.addUrlCheck(urlCheck);
+                result.add(urlCheck);
             }
+
+            return result;
         }
     }
 }

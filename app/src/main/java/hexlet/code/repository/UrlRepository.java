@@ -1,6 +1,7 @@
 package hexlet.code.repository;
 
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -52,8 +53,7 @@ public final class UrlRepository extends BaseRepository {
                 Url url = new Url(name);
                 url.setId(id);
                 url.setCreatedAt(createdAt);
-
-                UrlCheckRepository.fillEntities(url);
+                url.setUrlChecks(UrlCheckRepository.getEntities(url));
 
                 return Optional.of(url);
             }
@@ -98,30 +98,13 @@ public final class UrlRepository extends BaseRepository {
     public static List<Url> getEntities() throws SQLException {
         String sql =
                 """
-                WITH max_url_id AS (
                 SELECT
-                    urls.id AS id,
-                    MAX(url_checks.id) AS check_id
+                    id,
+                    name,
+                    createdAt
                 FROM urls
-                INNER JOIN url_checks
-                    ON urls.id = url_checks.url_id
-                GROUP BY
-                  urls.id
-                )
-                SELECT
-                    urls.id,
-                    urls.name,
-                    urls.createdAt,
-                    url_checks.createdAt AS check_createdAt,
-                    url_checks.statusCode AS check_statusCode
-                FROM urls
-                LEFT JOIN max_url_id
-                    ON urls.id = max_url_id.id
-                LEFT JOIN url_checks
-                    ON urls.id = url_checks.url_id
-                        AND url_checks.id = max_url_id.check_id
                 ORDER BY
-                    urls.id
+                    id
                 """;
 
         try (Connection conn = dataSource.getConnection();
@@ -138,12 +121,13 @@ public final class UrlRepository extends BaseRepository {
                 url.setId(id);
                 url.setCreatedAt(createdAt);
 
-                if (resultSet.getObject("check_statusCode") != null) {
-                    url.setLastCheckCode(resultSet.getInt("check_statusCode"));
-                }
+                List<UrlCheck> urlChecks = UrlCheckRepository.getEntities(url);
+                url.setUrlChecks(urlChecks);
 
-                if (resultSet.getObject("check_createdAt") != null) {
-                    url.setLastCheckAt(resultSet.getTimestamp("check_createdAt").toLocalDateTime());
+                if (!urlChecks.isEmpty()) {
+                    UrlCheck lastCheck = urlChecks.getLast();
+                    url.setLastCheckCode(lastCheck.getStatusCode());
+                    url.setLastCheckAt(lastCheck.getCreatedAt());
                 }
 
                 result.add(url);
