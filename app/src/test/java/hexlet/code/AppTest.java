@@ -32,7 +32,6 @@ public class AppTest {
     @BeforeAll
     public static void setUp() throws Exception {
         App.useH2DatabaseOnStart = true;
-        App.enableDevLoggingOnStart = false;
 
         app = App.getApp();
         app.start(7070);

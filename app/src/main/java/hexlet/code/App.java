@@ -20,7 +20,6 @@ public class App {
     public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
     public static boolean useH2DatabaseOnStart = false;
     public static boolean usingH2DatabaseOnWork = false;
-    public static boolean enableDevLoggingOnStart = true;
 
     public static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
@@ -39,9 +38,7 @@ public class App {
         Utils.createDatabaseTables();
 
         var app = Javalin.create(config -> {
-            if (enableDevLoggingOnStart) {
-                config.bundledPlugins.enableDevLogging();
-            }
+            config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
