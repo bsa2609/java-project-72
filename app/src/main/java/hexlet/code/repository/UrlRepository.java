@@ -21,7 +21,7 @@ public final class UrlRepository extends BaseRepository {
                 SELECT
                     id,
                     name,
-                    createdAt
+                    created_at
                 FROM urls
                 WHERE
                 """ + fieldName + " = ?";
@@ -48,7 +48,7 @@ public final class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 String name = resultSet.getString("name");
                 Long id = resultSet.getLong("id");
-                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
+                LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 Url url = new Url(name);
                 url.setId(id);
@@ -75,7 +75,7 @@ public final class UrlRepository extends BaseRepository {
                 """
                 INSERT INTO urls(
                     name,
-                    createdAt
+                    created_at
                 )
                 VALUES(?, ?);
                 """;
@@ -101,7 +101,7 @@ public final class UrlRepository extends BaseRepository {
                 SELECT
                     id,
                     name,
-                    createdAt
+                    created_at
                 FROM urls
                 ORDER BY
                     id
@@ -115,7 +115,7 @@ public final class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
                 String name = resultSet.getString("name");
-                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
+                LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 Url url = new Url(name);
                 url.setId(id);

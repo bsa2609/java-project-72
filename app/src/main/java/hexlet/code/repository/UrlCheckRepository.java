@@ -24,7 +24,7 @@ public final class UrlCheckRepository extends BaseRepository {
                     title,
                     h1,
                     description,
-                    createdAt
+                    created_at
                 )
                 VALUES(?, ?, ?, ?, ?, ?)
                 """;
@@ -57,7 +57,7 @@ public final class UrlCheckRepository extends BaseRepository {
                     title,
                     h1,
                     description,
-                    createdAt
+                    created_at
                 FROM url_checks
                 WHERE
                     id = ?
@@ -74,7 +74,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 String title = resultSet.getString("title");
                 String h1 = resultSet.getString("h1");
                 String description = resultSet.getString("description");
-                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
+                LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);
                 urlCheck.setId(id);
@@ -102,7 +102,7 @@ public final class UrlCheckRepository extends BaseRepository {
                     title,
                     h1,
                     description,
-                    createdAt
+                    created_at
                 FROM url_checks
                 WHERE
                     url_id = ?
@@ -122,7 +122,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 String title = resultSet.getString("title");
                 String h1 = resultSet.getString("h1");
                 String description = resultSet.getString("description");
-                LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
+                LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);
                 urlCheck.setId(id);

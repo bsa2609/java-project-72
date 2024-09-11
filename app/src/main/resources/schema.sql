@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS urls;
 CREATE TABLE urls(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(500) NOT NULL,
-    createdAt TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE url_checks(
@@ -14,6 +14,6 @@ CREATE TABLE url_checks(
     title VARCHAR(500) NOT NULL,
     h1 VARCHAR(500) NOT NULL,
     description TEXT NOT NULL,
-    createdAt TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     FOREIGN KEY(url_id) REFERENCES urls(id)
 );
