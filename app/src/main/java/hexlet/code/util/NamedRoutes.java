@@ -25,6 +25,6 @@ public final class NamedRoutes {
     }
 
     public static String checkUrlPath(String id) {
-        return URLS_PATH + "/" + id + "/check";
+        return URLS_PATH + "/" + id + "/checks";
     }
 }
