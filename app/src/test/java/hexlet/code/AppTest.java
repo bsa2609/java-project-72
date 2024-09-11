@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AppTest {
+public final class AppTest {
     public static Javalin app;
     public static String localUrl;
     public static MockWebServer mockWebServer;
