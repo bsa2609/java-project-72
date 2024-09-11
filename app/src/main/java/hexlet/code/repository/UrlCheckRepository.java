@@ -20,7 +20,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 """
                 INSERT INTO url_checks(
                     url_id,
-                    statusCode,
+                    status_code,
                     title,
                     h1,
                     description,
@@ -53,7 +53,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 """
                 SELECT
                     url_id,
-                    statusCode,
+                    status_code,
                     title,
                     h1,
                     description,
@@ -70,7 +70,7 @@ public final class UrlCheckRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 Long urlId = resultSet.getLong("url_id");
-                int statusCode = resultSet.getInt("statusCode");
+                int statusCode = resultSet.getInt("status_code");
                 String title = resultSet.getString("title");
                 String h1 = resultSet.getString("h1");
                 String description = resultSet.getString("description");
@@ -98,7 +98,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 """
                 SELECT
                     id,
-                    statusCode,
+                    status_code,
                     title,
                     h1,
                     description,
@@ -118,7 +118,7 @@ public final class UrlCheckRepository extends BaseRepository {
 
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
-                int statusCode = resultSet.getInt("statusCode");
+                int statusCode = resultSet.getInt("status_code");
                 String title = resultSet.getString("title");
                 String h1 = resultSet.getString("h1");
                 String description = resultSet.getString("description");

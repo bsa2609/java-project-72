@@ -10,7 +10,7 @@ CREATE TABLE urls(
 CREATE TABLE url_checks(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     url_id BIGINT NOT NULL,
-    statusCode INT NOT NULL,
+    status_code INT NOT NULL,
     title VARCHAR(500) NOT NULL,
     h1 VARCHAR(500) NOT NULL,
     description TEXT NOT NULL,
